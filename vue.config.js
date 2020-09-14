@@ -25,7 +25,16 @@ module.exports = {
 
   },
   configureWebpack: (config) => {
-
+    config.resolve= {
+      extensions: [".js", ".vue", ".json"], //文件优先解析后缀名顺序
+          alias: {
+        "@": path.resolve(__dirname, "./src"),
+            "@c": path.resolve(__dirname, "./src/components"),
+            "@v": path.resolve(__dirname, "./src/views"),
+            "@u": path.resolve(__dirname, "./src/utils"),
+            "@s": path.resolve(__dirname, "./src/service")
+      } // 别名配置
+    }
   },
 
   // 是否为生产环境构建生成 source map？
