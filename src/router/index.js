@@ -11,12 +11,12 @@ const routes = [
   {
     path: "/login",
     name: "login",
-    component: () => import("@/views/Login/Login")
+    component: () => import("@/components/Login/Login")
   },
   {
     path: "/last",
     name: "last",
-    component: () => import("@/views/Last")
+    component: () => import("@/components/Last")
   }
 ];
 

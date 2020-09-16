@@ -29,14 +29,14 @@
                         <el-col :span="12">
                             <el-input class="item-form" v-model.number="ruleForm.code"></el-input>
                         </el-col>
-                        <el-col :span="12" class="block">
-                            <el-button type="success">验证码</el-button>
+                        <el-col :span="12" >
+                            <el-button type="success" class="block" @click="getSms()">验证码</el-button>
                         </el-col>
                     </el-row>
 
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" class="login-btn block" @click="submitForm('ruleForm')">{{msg}}
+                    <el-button type="primary" class="login-btn block" :disabled="loginButtonStatus"  @click="submitForm('ruleForm')">{{mode=='login'? '登录':'注册' }}
                     </el-button>
 
                 </el-form-item>
@@ -46,12 +46,17 @@
 </template>
 
 <script>
+
+    import { GetSms } from '@/api/login';
     import {reactive, ref, isRef, toRefs, onMounted} from '@vue/composition-api';
     import {stripscript, validateEmail, validateCode, validatePwd} from '@/utils/validate.js';
+    import axios from 'axios';
+
 
     export default {
         name: "login",
         setup(props, context) {
+
             let validateUser = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请输入用户名'));
@@ -104,10 +109,11 @@
             ])
             //模块值
             const mode = ref('login')
+
+            const loginButtonStatus = ref(true)
             // console.log(isRef(menuTab) ? '是基础类型' : '是对象类型')
             // console.log(mode.value)
 
-            const msg = ref('登录')
             /**
              * 表单数据
              */
@@ -157,16 +163,58 @@
                 data.current = true;
                 if (data.type == 'register') {
                     mode.value = 'register';
-                    msg.value = '注册'
+
                 } else {
                     mode.value = 'login';
-                    msg.value = '登录'
+
                 }
 
             })
+            /**
+             * 获取验证码
+             */
+            const getSms = (() => {
+                GetSms();
+                //进行提示
+                if(ruleForm.username == ''){
+                    context.root.$message.error('邮箱不能为空');
+                    return false;
+                }
+                if(validateEmail(ruleForm.username)){
+                    // root.$message.error('邮箱格式错误');
+                    return false
+                }
+                let requestData = {
+                    username:ruleForm.username,
+                    module:mode.value
+                }
+                //修改按钮状态
+                //     status:true,
+                //     text:'发送中'
+                // })
+
+                GetSms(requestData).then(response=>{
+                    // let data = response.data;
+                    // root.$message({
+                    //     message:data.message,
+                    //     type:'success',
+                    //     dangerouslyUseHTMLString:true
+                    // });
+
+                })
+            })
+
             const submitForm = ((formName) => {
+                // axios.get('http://test123.com/test')
+                //     .then(function (response) {
+                //         console.log(response);
+                //     })
+                //     .catch(function (error) {
+                //         console.log(error);
+                //     });
                 context.refs[formName].validate((valid) => {
                     if (valid) {
+
                         alert('submit!');
                     } else {
                         console.log('error submit!!');
@@ -176,23 +224,24 @@
             })
 
 
-
             /**
              * 生命周期
              */
             //挂在完成后
             onMounted(() => {
-
+                // GetSms()
             })
 
             return {
                 menuTab,
                 mode,
-                msg,
+                loginButtonStatus,
                 checkup,
+                getSms,
                 submitForm,
                 ruleForm,
-                rules
+                rules,
+
             }
         },
 
@@ -201,56 +250,5 @@
 </script>
 
 <style lang="scss" scoped>
-    #login {
-        height: 100vh;
-        background-color: #8cc8ff;
-    }
-
-    .login-wrap {
-        width: 330px;
-        margin: auto;
-    }
-
-    .menu-tab {
-        text-align: center;
-
-        li {
-            display: inline-block;
-            width: 88px;
-            height: 36px;
-            font-size: 14px;
-            color: #fff;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-    }
-
-    .current {
-        background-color: rgba(0, 0, 0, .1);
-    }
-
-    .login-form {
-        margin-top: 29px;
-
-        label {
-            display: block;
-            size: 14px;
-            color: #fff;
-            margin-top: 3px;
-        }
-
-        .item-form {
-            margin-bottom: 13px;
-        }
-
-        .block {
-            width: 100%;
-            display: block;
-        }
-
-        .login-btn {
-            margin-top: 19px;
-        }
-    }
-
+    @import "login.scss";
 </style>

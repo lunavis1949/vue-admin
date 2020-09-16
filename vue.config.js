@@ -83,19 +83,19 @@ module.exports = {
     https: false,   //编译失败时刷新页面
     hot: true,    //开启热加载
     hotOnly: false,
+    // proxy: null,
     // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
-    // proxy: {
-    //     '/api': {
-    //         target: 'http://localhost:8880',
-    //         changeOrigin: true,
-    //         secure: false,
-    //         // ws: true,
-    //         pathRewrite: {
-    //             '^/api': '/static/mock'   // 请求数据路径别名,这里是注意将static/mock放入public文件夹
-    //         }
-    //     }
-    // },
-    proxy: null,
+    proxy: {
+        '/devapi': {
+            target: 'http://test123.com/api',    //访问的服务器地址
+            changeOrigin: true,  //开启跨域
+            secure: false,
+            // ws: true,
+            pathRewrite: {
+                '^/devapi': ''   // 请求数据路径别名,这里是注意将static/mock放入public文件夹
+            }
+        }
+    },
     overlay: { //全屏模式下是否显示脚本错误
       warnings: true,
       errors: true

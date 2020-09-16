@@ -4,7 +4,9 @@ import router from "./router";
 import store from "./store";
 import VueCompositionApi from "@vue/composition-api";
 import "./plugins/element.js";
+import axios from "axios";
 
+Vue.prototype.$https = axios;
 Vue.use(VueCompositionApi);
 Vue.config.productionTip = false;
 
