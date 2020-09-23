@@ -1,53 +1,38 @@
 #login {
     height: 100vh;
-    background-color: #8cc8ff;
+    background-color: #344a5f;
 }
-
 .login-wrap {
     width: 330px;
     margin: auto;
 }
-
 .menu-tab {
     text-align: center;
-
-li {
-    display: inline-block;
-    width: 88px;
-    height: 36px;
-    font-size: 14px;
-    color: #fff;
-    border-radius: 2px;
-    cursor: pointer;
+    li {
+        display: inline-block;
+        width: 88px;
+        line-height: 36px;
+        font-size: 14px;
+        color: #fff;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .current {
+        background-color: rgba(0, 0, 0, .1);
+    }
 }
-
-}
-
-.current {
-    background-color: rgba(0, 0, 0, .1);
-}
-
 .login-form {
     margin-top: 29px;
-
-label {
-    display: block;
-    size: 14px;
-    color: #fff;
-    margin-top: 3px;
-}
-
-.item-form {
-    margin-bottom: 13px;
-}
-
-.block {
-    width: 100%;
-    display: block;
-}
-
-.login-btn {
-    margin-top: 19px;
-}
-
+    label {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 14px;
+        color: #fff;
+    }
+    .item-from { margin-bottom: 13px; }
+    .block {
+        display: block;
+        width: 100%;
+    }
+    .login-btn { margin-top: 19px; }
 }

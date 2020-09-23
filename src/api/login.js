@@ -3,15 +3,11 @@ import service from "@u/request";
 /**
  * 获取验证码
  */
-export function GetSms() {
-    // service.get('/getSms')
-    //     .then(function(response) {
-    //         console.log(response.data);
-    //     });
+export function GetSms(data) {
     return service.request({
-        method: 'get',
-        url: '/getSms',
-        data: {}
+        method: 'post',
+        url: '/getSms/',
+        data
     })
 }
 
@@ -23,7 +19,20 @@ export function GetSms() {
 /**
  * 登录
  */
-
+export function Login(data) {
+    return service.request({
+        method: 'post',
+        url: '/login/',
+        data
+    })
+}
 /**
  * 注册
  */
+export function Register(data) {
+    return service.request({
+        method: 'post',
+        url: '/register/',
+        data
+    })
+}

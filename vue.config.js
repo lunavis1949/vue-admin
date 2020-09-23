@@ -87,7 +87,7 @@ module.exports = {
     // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
     proxy: {
         '/devapi': {
-            target: 'http://test123.com/api',    //访问的服务器地址
+            target: 'http://www.web-jshtml.cn/productapi/token',    //访问的服务器地址
             changeOrigin: true,  //开启跨域
             secure: false,
             // ws: true,

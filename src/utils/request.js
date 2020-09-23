@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Message } from 'element-ui';
 
 //创建axios 赋给变量service
 const BASEURL = process.env.NODE_ENV === 'production' ? 'http://test123.com/api' : 'devapi';
@@ -17,7 +18,7 @@ service.interceptors.request.use(function (config) {
     //根据业务加入请求头数据
     // config.headers['token'] = getToekn();
     // config.headers['userName'] = getUserName();
-
+    console.log(config.headers);
     return config;
 }, function (error) {
     // 对请求错误做些什么
@@ -25,9 +26,19 @@ service.interceptors.request.use(function (config) {
 });
 
 // 添加响应拦截器
+/**
+ * 返回数据进行处理
+ */
 service.interceptors.response.use(function (response) {
     // 对响应数据做点什么
-    return response;
+    let data = response.data
+    if(data.resCode !== 0){ //后端自定义返回码不等于0  说明有错误  需要抛出给前端
+        //.vue文件全局引用可以使用 但是js不行需要单独引入elment 样式 import { Message } from 'element-ui';
+        Message.error(data.message);
+        return Promise.reject(data);
+    }else{
+        return response;
+    }
 }, function (error) {
     // 对响应错误做点什么
     return Promise.reject(error);

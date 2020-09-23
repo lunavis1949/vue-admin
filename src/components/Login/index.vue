@@ -3,11 +3,11 @@
         <div class="login-wrap">
             <ul class="menu-tab">
                 <li v-for="(item,index) in menuTab" :key="index" :class="{'current': item.current}"
-                    @click="checkup(item)">{{item.txt}}
+                    @click="checkup(item)">{{item.txt + index}}
                 </li>
             </ul>
             <!--            表单start      -->
-            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="login-form"
+            <el-form :model="ruleForm" status-icon :rules="rules" ref="loginForm" label-width="100px" class="login-form"
                      size="medium">
                 <el-form-item prop="username">
                     <label>邮箱</label>
@@ -27,18 +27,21 @@
                     <label>验证码</label>
                     <el-row :gutter="20">
                         <el-col :span="12">
-                            <el-input class="item-form" v-model.number="ruleForm.code"></el-input>
+                            <el-input class="item-form" v-model="ruleForm.code"></el-input>
                         </el-col>
-                        <el-col :span="12" >
-                            <el-button type="success" class="block" @click="getSms()">验证码</el-button>
+                        <el-col :span="12">
+                            <el-button type="success" class="block" @click="getSms()"
+                                       :disabled="codeButtonStatus.status">
+                                {{codeButtonStatus.text}}
+                            </el-button>
                         </el-col>
                     </el-row>
 
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" class="login-btn block" :disabled="loginButtonStatus"  @click="submitForm('ruleForm')">{{mode=='login'? '登录':'注册' }}
+                    <el-button type="primary" class="login-btn block" :disabled="loginButtonStatus"
+                               @click="submitForm('loginForm')">{{mode=='login'? '登录':'注册' }}
                     </el-button>
-
                 </el-form-item>
             </el-form>
         </div>
@@ -47,10 +50,10 @@
 
 <script>
 
-    import { GetSms } from '@/api/login';
+    import {GetSms,Register,Login} from '@/api/login';
     import {reactive, ref, isRef, toRefs, onMounted} from '@vue/composition-api';
     import {stripscript, validateEmail, validateCode, validatePwd} from '@/utils/validate.js';
-    import axios from 'axios';
+    import sha1 from 'js-sha1';
 
 
     export default {
@@ -110,7 +113,19 @@
             //模块值
             const mode = ref('login')
 
+            //倒计时
+            const timer = ref(null)
+
+            //禁用登录按钮  获取验证码后启用
             const loginButtonStatus = ref(true)
+
+            // 验证码按钮状态
+            const codeButtonStatus = reactive(
+                {
+                    status: false,
+                    text: '获取验证码'
+                }
+            );
             // console.log(isRef(menuTab) ? '是基础类型' : '是对象类型')
             // console.log(mode.value)
 
@@ -118,8 +133,8 @@
              * 表单数据
              */
             const ruleForm = reactive({
-                username: '',
-                checkPass: '',
+                username: '410293095@qq.com',
+                checkPass: 'wo123456789',
                 passwords: '',
                 code: ''
             })
@@ -160,69 +175,154 @@
                 menuTab.forEach((ele, index) => {
                     ele.current = false;
                 });
+                //高亮
                 data.current = true;
-                if (data.type == 'register') {
-                    mode.value = 'register';
+                //修改模块值
+                mode.value = data.type;
+                //重置表单
+                resetFromData()
+                //清除定时器
+                clearCountDown()
+            })
 
-                } else {
-                    mode.value = 'login';
+            // 清除表单数据
+            const resetFromData = (() => {
+                // 重置表单
+                // this.$refs[formName].resetFields(); //2.0
+                context.refs['loginForm'].resetFields();  // 3.0
+            })
 
-                }
-
+            const updateButtonStatus = ((params)=>{
+                codeButtonStatus.status = params.status;
+                codeButtonStatus.text = params.text;
             })
             /**
              * 获取验证码
              */
             const getSms = (() => {
-                GetSms();
-                //进行提示
-                if(ruleForm.username == ''){
+                // 进行提示
+                if (ruleForm.username == '') {
+                    // 获取到外部root
                     context.root.$message.error('邮箱不能为空');
                     return false;
                 }
-                if(validateEmail(ruleForm.username)){
-                    // root.$message.error('邮箱格式错误');
+                if (validateEmail(ruleForm.username)) {
+                    context.root.$message.error('邮箱格式错误');
                     return false
                 }
                 let requestData = {
-                    username:ruleForm.username,
-                    module:mode.value
+                    username: ruleForm.username,
+                    module: mode.value
                 }
-                //修改按钮状态
-                //     status:true,
-                //     text:'发送中'
-                // })
-
-                GetSms(requestData).then(response=>{
-                    // let data = response.data;
-                    // root.$message({
-                    //     message:data.message,
-                    //     type:'success',
-                    //     dangerouslyUseHTMLString:true
-                    // });
-
+                // 修改获取验证按钮状态
+                updateButtonStatus({
+                    status: true,
+                    text: '发送中'
                 })
+
+                setTimeout(() => {
+                    GetSms(requestData).then(response => {
+                        let data = response.data;
+                        context.root.$message({
+                            message: data.message,
+                            type: 'success',
+                            dangerouslyUseHTMLString: true
+                        });
+                        //启用登录或注册按钮
+                        loginButtonStatus.value = false;
+                        //调用倒时器
+                        countDown(60)
+                    }).catch(error => {
+                        loginButtonStatus.value = false;
+                        console.log(error)
+                    })
+                }, 2000)
+
             })
 
             const submitForm = ((formName) => {
-                // axios.get('http://test123.com/test')
-                //     .then(function (response) {
-                //         console.log(response);
-                //     })
-                //     .catch(function (error) {
-                //         console.log(error);
-                //     });
+                // checkup(menuTab[0]);
+                // return false;
                 context.refs[formName].validate((valid) => {
                     if (valid) {
-
-                        alert('submit!');
+                        if(mode.value === 'login'){
+                            login();
+                        }else{
+                            register();
+                            checkup(menuTab[0]);
+                        }
                     } else {
                         console.log('error submit!!');
                         return false;
                     }
                 });
             })
+            //登录
+            const login = (()=>{
+                let RequestData = {
+                    username:ruleForm.username,
+                    password:sha1(ruleForm.checkPass),
+                    code:ruleForm.code,
+                    module:'login'
+                }
+                Login(RequestData).then((response)=>{
+                    let data = response.data
+                    context.root.$message({
+                        message: data.message,
+                        type: 'success',
+                    })
+                    //页面跳转
+                    context.root.$router.push({
+                        name:'console'
+                    })
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            })
+            //注册
+            const register = (()=>{
+                let RequestData = {
+                    username:ruleForm.username,
+                    password:sha1(ruleForm.checkPass),
+                    code:ruleForm.code,
+                    module:'register'
+                }
+                Register(RequestData).then((response)=>{
+                    let data = response.data
+                    context.root.$message({
+                        message: data.message,
+                        type: 'success',
+                    })
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            })
+            //倒计时
+            const countDown = ((number) => {
+                //判断是否存在定时器  先清除
+                if(timer.value){ clearInterval(timer.value);}
+                let time = number;
+                timer.value = setInterval(() => {
+                    time--;
+                    if(time === 0){
+                        clearInterval(timer.value); //倒计时结束清楚定时器
+                        codeButtonStatus.status=false;
+                        codeButtonStatus.text='再次获取'
+                    }else{
+                        codeButtonStatus.text = `倒计时${time}秒`  //'倒计时'+time+'秒'
+                    }
 
+                }, 1000)
+            })
+
+            //清除倒计时
+            const clearCountDown = (()=>{
+                updateButtonStatus({
+                    status:false,
+                    text:'获取验证码'
+                })
+                clearInterval(timer.value);
+            })
 
             /**
              * 生命周期
@@ -236,11 +336,13 @@
                 menuTab,
                 mode,
                 loginButtonStatus,
+                codeButtonStatus,
                 checkup,
                 getSms,
                 submitForm,
                 ruleForm,
                 rules,
+
 
             }
         },
