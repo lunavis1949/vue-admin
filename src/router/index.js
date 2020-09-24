@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import Layout from "@/components/Layout/index";
 
 Vue.use(VueRouter);
 
@@ -28,9 +29,10 @@ export default new VueRouter({
             name: "console",
             redirect: 'index',
             meta:{
-                name:'控制页'
+                name:'控制页',
+                icon:'console'
             },
-            component: () => import("@/components/Layout/index"),
+            component: Layout,
             children:[
                 {
                     path:"/index",
@@ -49,9 +51,10 @@ export default new VueRouter({
             name: "Info",
             redirect: 'index',
             meta:{
-                name:'信息管理'
+                name:'信息管理',
+                icon:'info'
             },
-            component: () => import("@/components/Layout/index"),
+            component: Layout,
             children:[
                 {
                     path:"/infoIndex",
@@ -78,9 +81,10 @@ export default new VueRouter({
             name: "User",
             redirect: 'index',
             meta:{
-                name:'用户管理'
+                name:'用户管理',
+                icon:'user'
             },
-            component: () => import("@/components/Layout/index"),
+            component: Layout,
             children:[
                 {
                     path:"/userIndex",

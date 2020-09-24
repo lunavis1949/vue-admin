@@ -10,10 +10,10 @@
                 text-color="#fff"
                 router>
             <template v-for="(item,index) in routers">
-                <el-submenu  v-if="!item.hidden" :key="item.id" :index="index">
+                <el-submenu  v-if="!item.hidden" :key="item.id" :index="index + ''">
                     <!--一级菜单-->
                     <template slot="title">
-                        <i class="el-icon-location"></i>
+                        <svg-icon :iconClass="item.meta.icon" :className="item.meta.icon" />
                         <span slot="title">{{item.meta.name}}</span>
                     </template>
                     <!--子级菜单-->
@@ -24,13 +24,15 @@
             </template>
 
         </el-menu>
+
     </div>
+
 </template>
 
 <script>
     import {reactive, ref, isRef, toRefs, onMounted} from '@vue/composition-api';
     export default {
-        name: "nav",
+        name: "nav1",
         setup(props,{ root }){
             //data数组
             const isCollapse =  ref(false);
@@ -62,5 +64,9 @@
         width: 250px;
         height: 100vh;
         background-color: #344a5f;
+        svg{
+            font-size: 20px;
+            margin-right: 10px;
+        }
     }
 </style>
